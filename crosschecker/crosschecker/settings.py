@@ -54,6 +54,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #Custom middlewares
+    "checker.middlewares.LogRequestResponseMiddlewares.ErrorHandlingMiddleWare",
+    "checker.middlewares.TimeMiddleWare.PerformanceMiddleware"
 ]
 
 ROOT_URLCONF = 'crosschecker.urls'
@@ -170,7 +173,7 @@ LOGGING = {
              "level":"INFO",
              "propagate":True
          },
-         "exomarket_app":{
+         "checker":{
              "handlers":["console","file_app"],
              "level":"INFO",
              "propagate":True#set it to false if you want only the info logger to be called
