@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import logging
+from .validators import validate_question_length, validate_question, validate_content, validate_url, validate_wiki_url
 
 logger= logging.getLogger("checker")
 
@@ -14,6 +15,14 @@ class Query(models.Model):
     confidence_score = models.FloatField(verbose_name="AI Confidence Score", null=True, blank=True)
     sources = models.JSONField(verbose_name="Alternative sources", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+
+    def clean(self):
+        validate_wiki_url(self.wiki_url)
+        validate_url(self.wiki_url)
+        validate_content(self.content)
+        validate_question(self.question)
+        validate_question_length(self.question)
+        
 
     def __str__(self):
         return f"{self.user.username}: {self.question[:50]}..."
