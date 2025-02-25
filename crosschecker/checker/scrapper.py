@@ -21,4 +21,4 @@ def scrape_wikipedia(url: str) -> Optional[str]:
     text = " ".join([p.get_text(strip=False) for p in paragraphs])
     return text
 
-print(scrape_wikipedia("https://en.wikipedia.org/wiki/Tomato"))
+# print(scrape_wikipedia("https://en.wikipedia.org/wiki/Tomato"))
