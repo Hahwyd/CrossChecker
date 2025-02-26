@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'checker',
     'rest_framework',
+    #'checker.apps.LoggingAppConfig',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #Custom middlewares
+    "checker.middlewares.LogRequestResponseMiddlewares.ErrorHandlingMiddleWare",
+    "checker.middlewares.TimeMiddleWare.PerformanceMiddleware"
 ]
 
 ROOT_URLCONF = 'crosschecker.urls'
@@ -132,26 +136,47 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': 'debug.log',
-#         },
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file', 'console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+    "version":1,
+     'disable_existing_loggers': False,
+     "formatters":{
+         "verbose":{
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+         },
+         "simple":{
+              'format': '{asctime} {levelname}  {message}',
+            'style': '{',
+             
+         }
+     },
+     'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','info.log'),
+            'formatter': 'verbose',
+        },
+         'file_app': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','info_app.log'),
+            'formatter': 'verbose',
+        },
+    },
+     "loggers":{
+         "django":{
+             "handlers":["console","file"],
+             "level":"INFO",
+             "propagate":True
+         },
+         "checker":{
+             "handlers":["console","file_app"],
+             "level":"INFO",
+             "propagate":True#set it to false if you want only the info logger to be called
+         }
+         
+     }
+}
