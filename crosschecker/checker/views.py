@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,7 +11,7 @@ from .models import Query
 from .scrapper import scrape_wikipedia
 from .ai import ai_request
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("checker")
 
 
 class HomeView(View):
