@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import logging
 from .validators import validate_question_length, validate_question, validate_content, validate_url, validate_wiki_url
+from .permissions import IsOwner, IsAdminOrReadOnly
 
 logger= logging.getLogger("checker")
 
@@ -26,3 +27,13 @@ class Query(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.question[:50]}..."
+
+class MyModel(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        permissions = (
+            ('can_edit_mymodel', 'Can edit my model'),
+            ('can_manage_mymodel', 'Can manage my model'),
+        )

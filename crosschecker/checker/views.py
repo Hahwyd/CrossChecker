@@ -7,9 +7,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 import json
 import logging
-from .models import Query
+from .models import Query, MyModel
 from .scrapper import scrape_wikipedia
 from .ai import ai_request
+from rest_framework import generics
+from .permissions import IsOwner, IsAdminOrReadOnly
+from django.views.generic import TemplateView
 
 logger = logging.getLogger("checker")
 
@@ -93,3 +96,14 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'checker/signup.html', {'form': form})
+
+class ErrorPage(TemplateView):
+    template_name = "checker/error_page.html"
+
+class MyModelList(generics.ListAPIView):
+    queryset = MyModel.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+
+class MyModelDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MyModel.objects.all()
+    permission_classes = [IsOwner]

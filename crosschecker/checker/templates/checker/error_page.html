@@ -1,0 +1,71 @@
+{%extends 'checker/index.html' %}
+
+{% load static %}
+{% block content %}
+<div id="body">
+    <style>
+        #body    {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+            background: linear-gradient(to right, #e91d16, #dd8e35);
+            padding-left: 25%;
+            padding-right: 25%;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .error-container h1 {
+            font-size: 6rem;
+            margin: 0;
+            color: #f44336;
+        }
+        .error-container h2 {
+            font-size: 2rem;
+            margin: 10px 0;
+            color: #333;
+        }
+        .error-container p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+        .error-container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2196f3;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .error-container a:hover {
+            background-color: #1976d2;
+        }
+        .error-image {
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+
+
+<div class="error-container">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmWru8q17zpOzzzT1s475ZS_8fOL1GS0teSw&s" alt="Error Image" class="error-image">
+    <h1>404</h1>
+    <h2>Oops! Page Not Found</h2>
+    <p>We can't seem to find the page you're looking for. It might have been removed, renamed, or is temporarily unavailable.</p>
+    <a href="{% url 'home' %}">Go Back to Home</a>
+</div>
+
+</div>
+{% endblock %}
