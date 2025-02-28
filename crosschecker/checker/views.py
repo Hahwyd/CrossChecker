@@ -111,7 +111,7 @@ class UserRagisterView(CreateView):
 
 class UserLoginView(FormView):
     form_class = CustomAuthenticationForm
-    template_name = "posts_app/login.html"
+    template_name = "checker/login.html"
     success_url = reverse_lazy("home")
 
     def form_valid(self,form):
