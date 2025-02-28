@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from typing import Optional
 
 
 def scrape_wikipedia(url: str) -> str:

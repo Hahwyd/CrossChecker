@@ -25,17 +25,13 @@ class CheckWikiView(LoginRequiredMixin, View):
         question = request.POST.get("question")
 
         if not wiki_url or not question:
-            return JsonResponse(
-                {"error": "Both URL and question are required."}, status=400
-            )
+            return JsonResponse({"error": "Both URL and question are required."}, status=400)
 
         # Scrape Wikipedia article
         article_text = scrape_wikipedia(wiki_url)
         if not article_text:
             logger.error("Failed to scrape the Wikipedia article.")
-            return JsonResponse(
-                {"error": "Failed to scrape the Wikipedia article."}, status=500
-            )
+            return JsonResponse({"error": "Failed to scrape the Wikipedia article."}, status=500)
 
         # Send data to AI for verification
         ai_response = ai_request(article_text, question)
@@ -45,10 +41,15 @@ class CheckWikiView(LoginRequiredMixin, View):
 
         # Parse AI response
         try:
-            ai_data = json.loads(ai_response)
-            result_summary = ai_data.get("summary", "No summary provided.")
-            sources = ai_data.get("sources", {})
-            # confidence_score = ai_data.get('confidence_score', 0.0)
+            result_summary = ai_response.get("result_summary", "No summary provided.")
+            sources = json.dumps({
+                "url1": ai_response.get("url1", ""),
+                "url2": ai_response.get("url2", ""),
+                "url3": ai_response.get("url3", ""),
+                "url4": ai_response.get("url4", ""),
+                "url5": ai_response.get("url5", ""),
+            })
+            confidence_score = ai_response.get("confidence_score", 0)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse AI response: {e}")
             return JsonResponse({"error": "Failed to parse AI response."}, status=500)
@@ -61,7 +62,7 @@ class CheckWikiView(LoginRequiredMixin, View):
                 question=question,
                 content=article_text,
                 result_summary=result_summary,
-                # confidence_score=confidence_score,
+                confidence_score=confidence_score,
                 sources=sources,
             )
         except Exception as e:
@@ -72,7 +73,7 @@ class CheckWikiView(LoginRequiredMixin, View):
             {
                 "result_summary": result_summary,
                 "sources": sources,
-                # 'confidence_score': confidence_score
+                "confidence_score": confidence_score,
             }
         )
 
@@ -82,14 +83,13 @@ class UserProfileView(LoginRequiredMixin, View):
         queries = request.user.queries.all()
         return render(request, "checker/profile.html", {"queries": queries})
 
-
 def signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')
+            return redirect("home")
     else:
         form = UserCreationForm()
-    return render(request, 'checker/signup.html', {'form': form})
+    return render(request, "checker/signup.html", {"form": form})
