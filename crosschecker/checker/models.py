@@ -1,10 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
 import logging
-from .validators import validate_question_length, validate_question, validate_content, validate_url, validate_wiki_url
+from .validators import validate_question_length, validate_question, validate_content, validate_url, validate_wiki_url, validate_wikipedia_url, validate_wikipedia_url_json
 from .permissions import IsOwner, IsAdminOrReadOnly
+from .utils import scrape_wikipedia
 
 logger= logging.getLogger("checker")
+
+
+
+class WikipediaArticle(models.Model):
+    url = models.URLField(validators=[validate_wikipedia_url])
+
+class WikipediaArticleJSON(models.Model):
+    url = models.URLField(validators=[validate_wikipedia_url_json])
 
 
 class Query(models.Model):

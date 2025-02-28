@@ -1,8 +1,12 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-
+import logging
+from django.http import JsonResponse
 import re
+from django.core.exceptions import ValidationError
+from .utils import scrape_wikipedia
 
+logger = logging.getLogger("checker")
 
 #validate URL       
 def validate_url(url):
@@ -10,6 +14,36 @@ def validate_url(url):
         URLValidator()(url)
     except ValidationError as e:
         raise ValueError(f"Invalid URL: {e}")
+    
+#wikipedia_url_validator` function returns `None` if the validation is successful, if the validation fails it uses a `JsonResponse`
+
+def validate_wikipedia_url(value):
+    try:
+        URLValidator()(value)
+    except ValidationError as e:
+        logger.error("Invalid URL: %s", e)
+        return JsonResponse({"error": str(e)}, status=400)
+
+    try:
+        validate_wikipedia_url_json(value)
+    except ValueError as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+    return None
+
+
+def validate_wikipedia_url_json(wiki_url):
+    try:
+        article_text = scrape_wikipedia(wiki_url)
+        if not article_text:
+            logger.error("Failed to scrape the Wikipedia article.")
+            raise ValueError("Failed to scrape the Wikipedia article.")
+    except Exception as e:
+        logger.error("An error occurred while scraping the Wikipedia article: %s", e)
+        raise ValueError("An error occurred while scraping the Wikipedia article.")
+
+
+
     
 def validate_wiki_url(url):
     try:
@@ -58,4 +92,3 @@ def validate_content(content):
     if len(content) > 50000:
         raise ValueError("Content is too long (over 50,000 characters)")
     
-
