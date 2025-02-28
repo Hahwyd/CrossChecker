@@ -1,13 +1,55 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser, Permission, Group
 import logging
-from .validators import validate_question_length, validate_question, validate_content, validate_url, validate_wiki_url, validate_wikipedia_url, validate_wikipedia_url_json
+from .validators import validate_question_length, validate_question, validate_content, validate_url, validate_wiki_url, validate_wikipedia_url, validate_wikipedia_url_json, validate_email,validate_username
 from .permissions import IsOwner, IsAdminOrReadOnly
 from .utils import scrape_wikipedia
 
 logger= logging.getLogger("checker")
 
+class CustomUser(AbstractUser):
+    email=models.EmailField(unique=True,validators=[validate_email])
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name='groups',
+        blank=True,
+        help_text='for the groups this user belongs to the user will get all permissions of the groups.',
+        related_name="custom_user_set",
+        related_query_name="custom_user",
+    )
 
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name="custom_user_permissions",
+        related_query_name="custom_user",
+    )
+    def __str__(self) -> str:
+        return self.username
+    
+    def save(self, *args, **kwargs):
+        if self.password and not self.password.startswith(''):
+            self.set_password(self.password)
+        if self.first_name:
+            self.first_name = self.first_name.capitalize()
+        if self.last_name:
+            self.last_name = self.last_name.capitalize()
+    
+        logger.info(f"Saving {self.username} with {self.password}")
+        super().save(*args,**kwargs)
+    
+
+    def clean(self) -> None:
+        super().clean()
+        validate_username(self.username)
+
+    class Meta:
+        ordering = ['username','first_name','last_name']
+        db_table = 'random_posts_users'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
 
 class WikipediaArticle(models.Model):
     url = models.URLField(validators=[validate_wikipedia_url])

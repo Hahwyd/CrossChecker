@@ -91,4 +91,13 @@ def validate_content(content):
         raise ValueError("Content cannot be empty")
     if len(content) > 50000:
         raise ValueError("Content is too long (over 50,000 characters)")
+
+
+
+def validate_email(value):
+    if value.endswith('.') or value.endswith('. '):
+        raise ValidationError("We only accept valid email addresses")
     
+def validate_username(value):
+    if len(value)<2:
+        raise ValidationError("Username must be at least 2 characters long")
