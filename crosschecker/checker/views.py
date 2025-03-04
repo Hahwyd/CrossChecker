@@ -1,15 +1,19 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-import json
-import logging
-from .models import Query
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout, authenticate
+from django.urls import reverse_lazy
+from django.views.generic import ListView, TemplateView, DetailView, CreateView, FormView, RedirectView, UpdateView, DeleteView
+from rest_framework import generics
+from .models import Query, MyModel, CustomUser
 from .scrapper import scrape_wikipedia
 from .ai import ai_request
+from .permissions import IsOwner, IsAdminOrReadOnly
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserUpdateForm, PasswordConfirmationForm
+import json
+import logging
 
 logger = logging.getLogger("checker")
 
@@ -83,13 +87,77 @@ class UserProfileView(LoginRequiredMixin, View):
         queries = request.user.queries.all()
         return render(request, "checker/profile.html", {"queries": queries})
 
-def signup(request):
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect("home")
-    else:
-        form = UserCreationForm()
-    return render(request, "checker/signup.html", {"form": form})
+    def signup(request):
+        if request.method == "POST":
+            form = UserCreationForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                login(request, user)
+                return redirect("home")
+        else:
+            form = UserCreationForm()
+        return render(request, "checker/signup.html", {"form": form})
+
+
+class UserRegisterView(CreateView):
+    form_class = CustomUserCreationForm
+    template_name = "checker/register.html"
+    success_url = reverse_lazy("home")
+    def post(self, request, *args, **kwargs):
+        logger.info(f"total users {CustomUser.objects.count()}")
+        return super().post(request, *args, **kwargs)
+
+
+class UserLoginView(FormView):
+    form_class = CustomAuthenticationForm
+    template_name = "checker/login.html"
+    success_url = reverse_lazy("home")
+
+    def form_valid(self,form):
+        if form.cleaned_data.get("username") and form.cleaned_data.get("password"):
+            user = form.get_user()
+            if user:  # Ensure the user exists
+                login(self.request, user)
+                logger.info(f"{user.username} logged in")
+        else:
+            return self.form_invalid(form)
+        return super().form_valid(form)
+
+
+class UserLogoutView(LoginRequiredMixin,RedirectView):
+    url = reverse_lazy("home")
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        logger.warning(f"{request.user.username} logged out")
+        return super().get(request, *args, **kwargs)
+
+
+class ErrorPage(TemplateView):
+    template_name = "checker/error_page.html"
+
+
+class MyModelList(generics.ListAPIView):
+    queryset = MyModel.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+
+
+class MyModelDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MyModel.objects.all()
+    permission_classes = [IsOwner]
+
+
+class CustomUserDeleteView(DeleteView):
+    model = CustomUser
+    template_name = 'checker/user_confirm_delete.html'  # Replace with your template path
+    success_url = reverse_lazy('home')  # Redirect after successful delete
+
+    def get_object(self, queryset=None):
+        # Ensure the user can only delete their own account
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'password_form' not in context:
+            context['password_form'] = PasswordConfirmationForm()
+        return context
