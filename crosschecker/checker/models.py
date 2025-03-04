@@ -46,7 +46,7 @@ class CustomUser(AbstractUser):
 
     class Meta:
         ordering = ['username','first_name','last_name']
-        db_table = 'random_posts_users'
+        db_table = 'crosschecker_db'
         verbose_name = 'User'
         verbose_name_plural = 'Users'
 
