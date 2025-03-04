@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'checker',
     'rest_framework',
-    #'checker.apps.LoggingAppConfig',
 ]
 
 MIDDLEWARE = [
@@ -180,3 +179,4 @@ LOGGING = {
          
      }
 }
+
