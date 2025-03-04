@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from .models import WikipediaArticle, WikipediaArticleJSON, Query, MyModel, CustomUser
 
-class OpenAIGenerateSerializer(serializers.Serializer):
-    text = serializers.CharField(max_length=2000)
+#class OpenAIGenerateSerializer(serializers.Serializer):
+    #text = serializers.CharField(max_length=2000)
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:

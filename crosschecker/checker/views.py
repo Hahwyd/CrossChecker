@@ -101,7 +101,7 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'checker/signup.html', {'form': form})
 
-class UserRagisterView(CreateView):
+class UserRegisterView(CreateView):
     form_class = CustomUserCreationForm
     template_name = "checker/register.html"
     success_url = reverse_lazy("home")
