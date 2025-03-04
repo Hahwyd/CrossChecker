@@ -1,22 +1,19 @@
-from django.http import HttpResponse,HttpResponseForbidden,HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
-import json
-import logging
+from django.urls import reverse_lazy
+from django.views.generic import ListView, TemplateView, DetailView, CreateView, FormView, RedirectView, UpdateView, DeleteView
+from rest_framework import generics
 from .models import Query, MyModel, CustomUser
 from .scrapper import scrape_wikipedia
 from .ai import ai_request
-from rest_framework import generics
 from .permissions import IsOwner, IsAdminOrReadOnly
-from django.views.generic import TemplateView
-from django.contrib.auth.forms import AuthenticationForm
-from django.urls import reverse_lazy
-from .forms import CustomUserCreationForm,CustomAuthenticationForm,UserUpdateForm, PasswordConfirmationForm
-from django.views.generic import ListView,TemplateView,DetailView,CreateView,FormView,RedirectView,UpdateView,DeleteView
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserUpdateForm, PasswordConfirmationForm
+import json
+import logging
 
 logger = logging.getLogger("checker")
 
@@ -32,17 +29,13 @@ class CheckWikiView(LoginRequiredMixin, View):
         question = request.POST.get("question")
 
         if not wiki_url or not question:
-            return JsonResponse(
-                {"error": "Both URL and question are required."}, status=400
-            )
+            return JsonResponse({"error": "Both URL and question are required."}, status=400)
 
         # Scrape Wikipedia article
         article_text = scrape_wikipedia(wiki_url)
         if not article_text:
             logger.error("Failed to scrape the Wikipedia article.")
-            return JsonResponse(
-                {"error": "Failed to scrape the Wikipedia article."}, status=500
-            )
+            return JsonResponse({"error": "Failed to scrape the Wikipedia article."}, status=500)
 
         # Send data to AI for verification
         ai_response = ai_request(article_text, question)
@@ -52,10 +45,15 @@ class CheckWikiView(LoginRequiredMixin, View):
 
         # Parse AI response
         try:
-            ai_data = json.loads(ai_response)
-            result_summary = ai_data.get("summary", "No summary provided.")
-            sources = ai_data.get("sources", {})
-            # confidence_score = ai_data.get('confidence_score', 0.0)
+            result_summary = ai_response.get("result_summary", "No summary provided.")
+            sources = json.dumps({
+                "url1": ai_response.get("url1", ""),
+                "url2": ai_response.get("url2", ""),
+                "url3": ai_response.get("url3", ""),
+                "url4": ai_response.get("url4", ""),
+                "url5": ai_response.get("url5", ""),
+            })
+            confidence_score = ai_response.get("confidence_score", 0)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse AI response: {e}")
             return JsonResponse({"error": "Failed to parse AI response."}, status=500)
@@ -68,7 +66,7 @@ class CheckWikiView(LoginRequiredMixin, View):
                 question=question,
                 content=article_text,
                 result_summary=result_summary,
-                # confidence_score=confidence_score,
+                confidence_score=confidence_score,
                 sources=sources,
             )
         except Exception as e:
@@ -79,7 +77,7 @@ class CheckWikiView(LoginRequiredMixin, View):
             {
                 "result_summary": result_summary,
                 "sources": sources,
-                # 'confidence_score': confidence_score
+                "confidence_score": confidence_score,
             }
         )
 
@@ -89,17 +87,17 @@ class UserProfileView(LoginRequiredMixin, View):
         queries = request.user.queries.all()
         return render(request, "checker/profile.html", {"queries": queries})
 
+    def signup(request):
+        if request.method == "POST":
+            form = UserCreationForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                login(request, user)
+                return redirect("home")
+        else:
+            form = UserCreationForm()
+        return render(request, "checker/signup.html", {"form": form})
 
-def signup(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
-    else:
-        form = UserCreationForm()
-    return render(request, 'checker/signup.html', {'form': form})
 
 class UserRegisterView(CreateView):
     form_class = CustomUserCreationForm
@@ -108,6 +106,7 @@ class UserRegisterView(CreateView):
     def post(self, request, *args, **kwargs):
         logger.info(f"total users {CustomUser.objects.count()}")
         return super().post(request, *args, **kwargs)
+
 
 class UserLoginView(FormView):
     form_class = CustomAuthenticationForm
@@ -124,6 +123,7 @@ class UserLoginView(FormView):
             return self.form_invalid(form)
         return super().form_valid(form)
 
+
 class UserLogoutView(LoginRequiredMixin,RedirectView):
     url = reverse_lazy("home")
 
@@ -131,22 +131,21 @@ class UserLogoutView(LoginRequiredMixin,RedirectView):
         logout(request)
         logger.warning(f"{request.user.username} logged out")
         return super().get(request, *args, **kwargs)
-    
-
-
-
 
 
 class ErrorPage(TemplateView):
     template_name = "checker/error_page.html"
 
+
 class MyModelList(generics.ListAPIView):
     queryset = MyModel.objects.all()
     permission_classes = [IsAdminOrReadOnly]
 
+
 class MyModelDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MyModel.objects.all()
     permission_classes = [IsOwner]
+
 
 class CustomUserDeleteView(DeleteView):
     model = CustomUser
@@ -162,5 +161,3 @@ class CustomUserDeleteView(DeleteView):
         if 'password_form' not in context:
             context['password_form'] = PasswordConfirmationForm()
         return context
-
-    
