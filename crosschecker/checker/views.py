@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -69,17 +69,12 @@ class CheckWikiView(LoginRequiredMixin, View):
                 confidence_score=confidence_score,
                 sources=sources,
             )
+
+            # Redirect to results page
+            return redirect("query_results", query_id=query.id)
         except Exception as e:
             logger.error(f"Failed to save query to database: {e}")
             return JsonResponse({"error": "Failed to save query to database."}, status=500)
-
-        return JsonResponse(
-            {
-                "result_summary": result_summary,
-                "sources": sources,
-                "confidence_score": confidence_score,
-            }
-        )
 
 
 class UserProfileView(LoginRequiredMixin, View):
@@ -161,3 +156,10 @@ class CustomUserDeleteView(DeleteView):
         if 'password_form' not in context:
             context['password_form'] = PasswordConfirmationForm()
         return context
+
+
+class QueryResultsView(LoginRequiredMixin, View):
+    def get(self, request, query_id):
+        # Receiving the request, checking that it belongs to the current user
+        query = get_object_or_404(Query, id=query_id, user=request.user)
+        return render(request, "checker/results.html", {"query": query})
