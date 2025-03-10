@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Results - Wiki Verifier{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-4">Verification Results</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Request Details</h5>
+                <p><strong>Question:</strong> {{ query.question|default:"No question provided" }}</p>
+                <p><strong>Wikipedia URL:</strong> 
+                    {% if query.wiki_url %}
+                        <a href="{{ query.wiki_url }}" target="_blank">{{ query.wiki_url }}</a>
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                </p>
+                <p><strong>Article Content:</strong> {{ query.content|truncatewords:50|default:"No content available" }}</p>
+                <hr>
+                <h6>AI Analysis</h6>
+                <p><strong>Summary:</strong> {{ query.result_summary|default:"Analysis not yet completed" }}</p>
+                <p><strong>Confidence Score:</strong> 
+                    {% if query.confidence_score is not None %}
+                        {{ query.confidence_score }}%
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+                <h6>Sources:</h6>
+                {% if query.sources %}
+                    <ul class="list-unstyled">
+                        {% for key, value in query.sources.items %}
+                            {% if value %}
+                                <li><a href="{{ value }}" target="_blank" class="text-primary">{{ value }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No sources found.</p>
+                {% endif %}
+                <p><small><strong>Created:</strong> {{ query.created_at|date:"m/d/Y H:i" }}</small></p>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'home' %}" class="btn btn-outline-primary">Make Another Request</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
