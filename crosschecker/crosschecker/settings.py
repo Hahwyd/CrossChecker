@@ -58,6 +58,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #Custom middlewares
     "checker.middlewares.LogRequestResponseMiddlewares.ErrorHandlingMiddleWare",
+    "checker.middlewares.LogRequestResponseMiddlewares.DebugLoggingMiddleware",
+    "checker.middlewares.LogRequestResponseMiddlewares.InfoLoggingMiddleware",
+    "checker.middlewares.LogRequestResponseMiddlewares.WarningLoggingMiddleware",
+    "checker.middlewares.LogRequestResponseMiddlewares.CriticalLoggingMiddleware",
     "checker.middlewares.TimeMiddleWare.PerformanceMiddleware"
 ]
 
@@ -141,19 +145,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGGING = {
     "version":1,
-     'disable_existing_loggers': False,
-     "formatters":{
-         "verbose":{
+    'disable_existing_loggers': False,
+    "formatters":{
+        "verbose":{
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
-         },
-         "simple":{
-              'format': '{asctime} {levelname}  {message}',
+        },
+        "simple":{
+            'format': '{asctime} {levelname}  {message}',
             'style': '{',
              
-         }
-     },
-     'handlers': {
+        }
+    },
+    'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
@@ -163,24 +167,83 @@ LOGGING = {
             'filename': os.path.join(BASE_DIR, 'info_log','info.log'),
             'formatter': 'verbose',
         },
-         'file_app': {
+        'file_app': {
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'info_log','info_app.log'),
             'formatter': 'verbose',
         },
+
+
+
+
+        'debug_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','debug.log'),
+            'formatter': 'verbose'
+        },
+        'info_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','info.log'),
+            'formatter': 'verbose'
+        },
+        'warning_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','warning.log'),
+            'formatter': 'verbose'
+        },
+        'error_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','error.log'),
+            'formatter': 'verbose'
+        },
+        'critical_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','critical.log'),
+            'formatter': 'verbose'
+        },
+        
     },
-     "loggers":{
-         "django":{
-             "handlers":["console","file"],
-             "level":"INFO",
-             "propagate":True
-         },
-         "checker":{
-             "handlers":["console","file_app"],
-             "level":"INFO",
-             "propagate":True#set it to false if you want only the info logger to be called
-         }
-         
-     }
+    
+    "loggers":{
+        "django":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            "propagate":True
+        },
+        "checker":{
+            "handlers":["console","file_app"],
+            "level":"INFO",
+            "propagate":True#set it to false if you want only the info logger to be called
+        },
+
+
+
+
+        'debug': {
+            'handlers': ['debug_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'info': {
+            'handlers': ['info_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'warning': {
+            'handlers': ['warning_file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'error': {
+            'handlers': ['error_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'critical': {
+            'handlers': ['critical_file'],
+            'level': 'CRITICAL',
+            'propagate': False,
+        },
+    }
 }
 
