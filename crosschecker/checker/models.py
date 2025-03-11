@@ -77,13 +77,3 @@ class Query(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.question[:50]}..."
-
-class MyModel(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        permissions = (
-            ('can_edit_mymodel', 'Can edit my model'),
-            ('can_manage_mymodel', 'Can manage my model'),
-        )

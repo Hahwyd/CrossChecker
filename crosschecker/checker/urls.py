@@ -1,9 +1,9 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from .views import HomeView, CheckWikiView, UserProfileView, ErrorPage, QueryResultsView, UserRegisterView, UserLoginView
+from .views import HomePageView, CheckWikiView, UserProfileView, ErrorPage, QueryResultsView, UserRegisterView, UserLoginView
 
 urlpatterns = [
-    path("", HomeView.as_view(), name="home"),
+    path("", HomePageView.as_view(), name="home"),
     path("check/", CheckWikiView.as_view(), name="check_wiki"),
     path("profile/", UserProfileView.as_view(), name="profile"),
     path("accounts/", include("django.contrib.auth.urls")),

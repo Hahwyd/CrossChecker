@@ -7,24 +7,33 @@ from django.contrib.auth import login, logout, authenticate
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, FormView, RedirectView, UpdateView, DeleteView
 from rest_framework import generics
-from .models import Query, MyModel, CustomUser
+from .models import Query, CustomUser
 from .scrapper import scrape_wikipedia
 from .ai import ai_request
 from .permissions import IsOwner, IsAdminOrReadOnly
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserUpdateForm, PasswordConfirmationForm
 import json
 import logging
+from django.contrib import messages
 
 logger = logging.getLogger("checker")
 
 
-class HomeView(View):
-    def get(self, request):
-        return render(request, "checker/index.html")
+class HomePageView(TemplateView):
+    template_name = "checker/index.html"
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"The home page is visited by {request.user}")
+        return super().get(request, *args, **kwargs)
 
 
-class CheckWikiView(LoginRequiredMixin, View):
-    def post(self, request):
+class CheckWikiView(LoginRequiredMixin, TemplateView):
+    template_name = "checker/index.html"
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         wiki_url = request.POST.get("wiki_url")
         question = request.POST.get("question")
 
@@ -82,22 +91,17 @@ class UserProfileView(LoginRequiredMixin, View):
         queries = request.user.queries.all()
         return render(request, "checker/profile.html", {"queries": queries})
 
-    def signup(request):
-        if request.method == "POST":
-            form = UserCreationForm(request.POST)
-            if form.is_valid():
-                user = form.save()
-                login(request, user)
-                return redirect("home")
-        else:
-            form = UserCreationForm()
-        return render(request, "checker/signup.html", {"form": form})
-
 
 class UserRegisterView(CreateView):
     form_class = CustomUserCreationForm
     template_name = "checker/register.html"
     success_url = reverse_lazy("home")
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f"Welcome, {self.object.username}! Your account has been created successfully.")
+        return response
+
     def post(self, request, *args, **kwargs):
         logger.info(f"total users {CustomUser.objects.count()}")
         return super().post(request, *args, **kwargs)
@@ -108,15 +112,16 @@ class UserLoginView(FormView):
     template_name = "checker/login.html"
     success_url = reverse_lazy("home")
 
-    def form_valid(self,form):
+    def form_valid(self, form):
         if form.cleaned_data.get("username") and form.cleaned_data.get("password"):
             user = form.get_user()
             if user:  # Ensure the user exists
                 login(self.request, user)
                 logger.info(f"{user.username} logged in")
-        else:
-            return self.form_invalid(form)
-        return super().form_valid(form)
+                messages.success(self.request, f"Welcome back, {user.username}!")
+                return super().form_valid(form)
+        messages.error(self.request, "Invalid username or password.")
+        return self.form_invalid(form)
 
 
 class UserLogoutView(LoginRequiredMixin,RedirectView):
@@ -130,16 +135,6 @@ class UserLogoutView(LoginRequiredMixin,RedirectView):
 
 class ErrorPage(TemplateView):
     template_name = "checker/error_page.html"
-
-
-class MyModelList(generics.ListAPIView):
-    queryset = MyModel.objects.all()
-    permission_classes = [IsAdminOrReadOnly]
-
-
-class MyModelDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = MyModel.objects.all()
-    permission_classes = [IsOwner]
 
 
 class CustomUserDeleteView(DeleteView):
