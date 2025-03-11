@@ -17,6 +17,19 @@ import logging
 
 logger = logging.getLogger("checker")
 
+debug_logger = logging.getLogger('debug')
+info_logger = logging.getLogger('info')
+warning_logger = logging.getLogger('warning')
+error_logger = logging.getLogger('error')
+critical_logger = logging.getLogger('critical')
+
+def my_view(request):
+    debug_logger.debug('This is a debug message')
+    info_logger.info('This is an info message')
+    warning_logger.warning
+    error_logger.error
+    critical_logger.critical
+
 
 class HomeView(View):
     def get(self, request):
