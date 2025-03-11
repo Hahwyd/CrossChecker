@@ -1,9 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from typing import Optional
 
 
-def scrape_wikipedia(url: str) -> Optional[str]:
+def scrape_wikipedia(url: str) -> str:
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -13,11 +12,6 @@ def scrape_wikipedia(url: str) -> Optional[str]:
 
     soup = BeautifulSoup(response.text, "html.parser")
     paragraphs = soup.find_all("p")
-
-    # if not paragraphs: # Need to add to logging
-    #     print(f"No paragraphs found at {url}")
-    #     return None
-
     text = " ".join([p.get_text(strip=False) for p in paragraphs])
     return text
 

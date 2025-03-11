@@ -1,41 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CrossChecker</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    <header>
-        <h1>CrossChecker</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'profile' %}">Profile</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                    <li><a href="{% url 'signup' %}">Sign Up</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <h2>Verify Wikipedia Article</h2>
-        <form method="post" action="{% url 'check_wiki' %}">
-            {% csrf_token %}
-            <label for="wiki_url">Wikipedia URL:</label>
-            <input type="url" id="wiki_url" name="wiki_url" required>
-            <label for="question">Question:</label>
-            <textarea id="question" name="question" required></textarea>
-            <button type="submit">Check</button>
-        </form>
-    </main>
-    <footer>
-        <p>&copy; 2025 CrossChecker. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Home - Wiki Verifier{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 fw-bold">Welcome to Wiki Verifier</h1>
+        <p class="lead">Verify Wikipedia information with AI-powered analysis.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Check a Wikipedia Article</h5>
+                <form method="post" action="{% url 'check_wiki' %}" id="wikiForm">
+                    {% csrf_token %}
+                    <!-- Wikipedia URL Input -->
+                    <div class="mb-3">
+                        <label for="wiki_url" class="form-label">Wikipedia URL</label>
+                        <input type="url" class="form-control" id="wiki_url" name="wiki_url" placeholder="https://en.wikipedia.org/wiki/..." required>
+                    </div>
+                    <!-- Question Input -->
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Your Question</label>
+                        <textarea class="form-control" id="question" name="question" rows="3" 
+                                  placeholder="Is this information accurate? (Press Enter to submit, Ctrl+Enter for new line)" 
+                                  required></textarea>
+                    </div>
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100">Verify Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 text-center">
+        <a href="{% url 'profile' %}" class="btn btn-outline-secondary">View Your History</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<!-- Submit form on Enter key press -->
+<script>
+document.getElementById('question').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.ctrlKey) {
+        e.preventDefault();
+        document.getElementById('wikiForm').submit();
+    } else if (e.key === 'Enter' && e.ctrlKey) {
+        // Allow default behavior for Ctrl+Enter (new line)
+        return true;
+    }
+});
+</script>
+{% endblock %}
