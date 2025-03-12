@@ -5,6 +5,11 @@ from .validators import validate_question_length, validate_question, validate_co
 from .permissions import IsOwner, IsAdminOrReadOnly
 
 logger = logging.getLogger("checker")
+debug_logger = logging.getLogger("debug")
+info_logger = logging.getLogger("info")
+warning_logger = logging.getLogger("warning")
+error_logger = logging.getLogger("error")
+critical_logger = logging.getLogger("critical")
 
 
 class CustomUser(AbstractUser):
