@@ -61,6 +61,34 @@ footer {
     width: 100%;
 }
 
+/* Messages */
+.messages {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 500px;
+}
+
+.alert {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.alert-dismissible .btn-close {
+    padding: 0.5rem 0.5rem;
+}
+
+.alert-success {
+    animation: fadeOut 0.5s ease-in-out 4.5s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .display-4 {
