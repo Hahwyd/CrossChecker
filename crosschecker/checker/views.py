@@ -3,11 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
+from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, FormView, RedirectView, UpdateView, DeleteView
 from rest_framework import generics
-from .models import Query, MyModel, CustomUser
+from .models import Query, CustomUser
 from .scrapper import scrape_wikipedia
 from .ai import ai_request
 from .permissions import IsOwner, IsAdminOrReadOnly
@@ -31,31 +32,35 @@ def my_view(request):
     critical_logger.critical
 
 
-class HomeView(View):
-    def get(self, request):
-        return render(request, "checker/index.html")
+class HomePageView(TemplateView):
+    template_name = "checker/index.html"
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"The home page is visited by {request.user}")
+        return super().get(request, *args, **kwargs)
 
 
-class CheckWikiView(LoginRequiredMixin, View):
-    def post(self, request):
+class CheckWikiView(LoginRequiredMixin, TemplateView):
+    template_name = "checker/index.html"
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         wiki_url = request.POST.get("wiki_url")
         question = request.POST.get("question")
-
         if not wiki_url or not question:
             return JsonResponse({"error": "Both URL and question are required."}, status=400)
-
         # Scrape Wikipedia article
         article_text = scrape_wikipedia(wiki_url)
         if not article_text:
             logger.error("Failed to scrape the Wikipedia article.")
             return JsonResponse({"error": "Failed to scrape the Wikipedia article."}, status=500)
-
         # Send data to AI for verification
         ai_response = ai_request(article_text, question)
         if not ai_response:
             logger.error("AI verification failed.")
             return JsonResponse({"error": "AI verification failed."}, status=500)
-
         # Parse AI response
         try:
             result_summary = ai_response.get("result_summary", "No summary provided.")
@@ -70,7 +75,6 @@ class CheckWikiView(LoginRequiredMixin, View):
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse AI response: {e}")
             return JsonResponse({"error": "Failed to parse AI response."}, status=500)
-
         # Save query to database
         try:
             query = Query.objects.create(
@@ -82,8 +86,6 @@ class CheckWikiView(LoginRequiredMixin, View):
                 confidence_score=confidence_score,
                 sources=sources,
             )
-
-            # Redirect to results page
             return redirect("query_results", query_id=query.id)
         except Exception as e:
             logger.error(f"Failed to save query to database: {e}")
@@ -95,22 +97,17 @@ class UserProfileView(LoginRequiredMixin, View):
         queries = request.user.queries.all()
         return render(request, "checker/profile.html", {"queries": queries})
 
-    def signup(request):
-        if request.method == "POST":
-            form = UserCreationForm(request.POST)
-            if form.is_valid():
-                user = form.save()
-                login(request, user)
-                return redirect("home")
-        else:
-            form = UserCreationForm()
-        return render(request, "checker/signup.html", {"form": form})
-
 
 class UserRegisterView(CreateView):
     form_class = CustomUserCreationForm
     template_name = "checker/register.html"
     success_url = reverse_lazy("home")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f"Welcome, {self.object.username}! Your account has been created successfully.")
+        return response
+
     def post(self, request, *args, **kwargs):
         logger.info(f"total users {CustomUser.objects.count()}")
         return super().post(request, *args, **kwargs)
@@ -121,23 +118,25 @@ class UserLoginView(FormView):
     template_name = "checker/login.html"
     success_url = reverse_lazy("home")
 
-    def form_valid(self,form):
+    def form_valid(self, form):
         if form.cleaned_data.get("username") and form.cleaned_data.get("password"):
-            user = form.get_user()
+            user = form.get_user()  # Authenticating the user
             if user:  # Ensure the user exists
                 login(self.request, user)
                 logger.info(f"{user.username} logged in")
-        else:
-            return self.form_invalid(form)
-        return super().form_valid(form)
+                messages.success(self.request, f"Welcome back, {user.username}!")
+                return super().form_valid(form)
+        messages.error(self.request, "Invalid username or password.")
+        return self.form_invalid(form)
 
 
-class UserLogoutView(LoginRequiredMixin,RedirectView):
+class UserLogoutView(LoginRequiredMixin, RedirectView):
     url = reverse_lazy("home")
 
     def get(self, request, *args, **kwargs):
         logout(request)
         logger.warning(f"{request.user.username} logged out")
+        messages.success(request, f"Goodbye, {request.user.username}! You have been successfully logged out.")
         return super().get(request, *args, **kwargs)
 
 
@@ -145,20 +144,10 @@ class ErrorPage(TemplateView):
     template_name = "checker/error_page.html"
 
 
-class MyModelList(generics.ListAPIView):
-    queryset = MyModel.objects.all()
-    permission_classes = [IsAdminOrReadOnly]
-
-
-class MyModelDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = MyModel.objects.all()
-    permission_classes = [IsOwner]
-
-
 class CustomUserDeleteView(DeleteView):
     model = CustomUser
-    template_name = 'checker/user_confirm_delete.html'  # Replace with your template path
-    success_url = reverse_lazy('home')  # Redirect after successful delete
+    template_name = "checker/user_confirm_delete.html"
+    success_url = reverse_lazy("home")  # Redirect after successful delete
 
     def get_object(self, queryset=None):
         # Ensure the user can only delete their own account
@@ -166,8 +155,8 @@ class CustomUserDeleteView(DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if 'password_form' not in context:
-            context['password_form'] = PasswordConfirmationForm()
+        if "password_form" not in context:
+            context["password_form"] = PasswordConfirmationForm()
         return context
 
 

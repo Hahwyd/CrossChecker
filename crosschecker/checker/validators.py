@@ -99,5 +99,7 @@ def validate_email(value):
         raise ValidationError("We only accept valid email addresses")
     
 def validate_username(value):
-    if len(value)<2:
+    if not value:
+        raise ValidationError("Username cannot be empty")
+    if len(str(value)) < 2:
         raise ValidationError("Username must be at least 2 characters long")
