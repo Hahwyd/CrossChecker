@@ -15,6 +15,7 @@ from .permissions import IsOwner, IsAdminOrReadOnly
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserUpdateForm, PasswordConfirmationForm
 import json
 import logging
+from django.core.exceptions import PermissionDenied
 
 logger = logging.getLogger("checker")
 
@@ -165,3 +166,15 @@ class QueryResultsView(LoginRequiredMixin, View):
         # Receiving the request, checking that it belongs to the current user
         query = get_object_or_404(Query, id=query_id, user=request.user)
         return render(request, "checker/results.html", {"query": query})
+    
+class DeleteQueryView(LoginRequiredMixin, View):
+    def post(self, request, query_id):
+        try:
+            query = Query.objects.get(id=query_id, user=request.user)
+        except Query.DoesNotExist:
+            messages.error(request, "Query does not exist.")
+            return redirect('checker/home.html')
+
+        query.delete()
+        messages.success(request, "Query has been successfully deleted.")
+        return render(request, "checker/profile.html", {"query": query})
