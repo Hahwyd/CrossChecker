@@ -50,19 +50,56 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide alert-success after 5 seconds (from base.html)
+    var successAlerts = document.querySelectorAll('.alert-success');
+    if (successAlerts.length > 0) {
+        setTimeout(function() {
+            successAlerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    }
+
+    // Dark Mode Toggle Logic (from base.html)
+    const toggle = document.getElementById('darkModeToggle');
+    const html = document.documentElement;
+
+    // Load saved theme from localStorage
+    if (localStorage.getItem('theme') === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        toggle.checked = true;
+    }
+
+    // Toggle theme on click
+    toggle.addEventListener('change', function() {
+        if (this.checked) {
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            html.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+
+    // Form submission logic (specific to index.html)
     const questionArea = document.getElementById('question');
     const form = document.getElementById('wikiForm');
     
     questionArea.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-            // Если нажат Ctrl+Enter
             if (e.ctrlKey) {
-                // Позволяем создать новую строку (стандартное поведение)
-                return true;
+                // Insert new line at cursor position
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + '\n' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                e.preventDefault();
             } else {
-                // Если просто Enter - отправляем форму
-                e.preventDefault(); // Предотвращаем создание новой строки
-                if (form.checkValidity()) { // Проверяем валидность формы
+                // Submit form on Enter
+                e.preventDefault();
+                if (form.checkValidity()) {
                     form.submit();
                 }
             }

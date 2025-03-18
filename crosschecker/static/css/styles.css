@@ -9,9 +9,66 @@ body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-family: 'Roboto', sans-serif;
+    transition: background 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+}
+
+/* Light Mode (default) */
+html[data-theme="light"] body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: #2c3e50;
+}
+
+html[data-theme="light"] .card {
+    background-color: #ffffff;
+}
+
+html[data-theme="light"] .navbar-dark {
+    background-color: #007bff !important;
+}
+
+/* Dark Mode */
+html[data-theme="dark"] body {
+    background: linear-gradient(135deg, #1f2a44 0%, #2c3e50 100%);
+    color: #e0e0e0;
+}
+
+html[data-theme="dark"] .card {
+    background-color: #2c3e50;
+    color: #e0e0e0;
+}
+
+html[data-theme="dark"] .navbar-dark {
+    background-color: #1a2b56 !important;
+}
+
+html[data-theme="dark"] .form-control {
+    background-color: #3d4b66;
+    color: #e0e0e0;
+    border-color: #5a6b8c;
+}
+
+html[data-theme="dark"] .form-control:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+html[data-theme="dark"] .table {
+    color: #e0e0e0;
+}
+
+html[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #3d4b66;
+}
+
+html[data-theme="dark"] .alert-success {
+    background-color: #1f4b36;
+    color: #d4edda;
+}
+
+html[data-theme="dark"] .alert-danger {
+    background-color: #4b2e2e;
+    color: #f8d7da;
 }
 
 /* Page wrapper */
@@ -31,7 +88,6 @@ main {
 
 /* Main heading */
 .display-4 {
-    color: #2c3e50;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -39,7 +95,6 @@ main {
 .card {
     border: none;
     border-radius: 10px;
-    background-color: #ffffff;
     transition: transform 0.3s ease;
 }
 
@@ -121,6 +176,7 @@ footer {
     }
 }
 
+/* Card animation */
 .card {
     animation: fadeInUp 0.5s ease-in-out;
 }
@@ -131,11 +187,11 @@ footer {
 
 /* Team member avatar styling */
 .team-member img {
-    border: 2px solid #007bff; /* Blue border matching btn-primary */
-    object-fit: cover; /* Ensures the image fills the circle nicely */
-    transition: transform 0.3s ease; /* Smooth hover effect */
+    border: 2px solid #007bff;
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
 .team-member img:hover {
-    transform: scale(1.1); /* Slight zoom on hover */
+    transform: scale(1.1);
 }
