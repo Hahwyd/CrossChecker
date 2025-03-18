@@ -14,4 +14,5 @@ urlpatterns = [
     path("results/<int:query_id>/", QueryResultsView.as_view(), name="query_results"),
     path("delete_query/<int:query_id>/", DeleteQueryView.as_view(), name="delete_query"),
     path('delete_all_queiries/', DeleteAllQueriesView.as_view(), name='delete_all_queries'),
+    path('about-us/', AboutUsView.as_view(), name='about_us'),
 ]

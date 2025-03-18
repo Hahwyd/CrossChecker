@@ -188,3 +188,8 @@ class DeleteAllQueriesView(LoginRequiredMixin, View):
         queries.delete()
         logger.info(f"User {request.user.username} deleted all their queries ({queries.count()} items)")
         return redirect("profile")
+
+class AboutUsView(View):
+
+    def get(self, request):
+        return render(request, "checker/about_us.html")
