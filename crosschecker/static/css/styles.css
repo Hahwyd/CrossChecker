@@ -27,7 +27,20 @@ html[data-theme="light"] .navbar-dark {
     background-color: #007bff !important;
 }
 
+html[data-theme="light"] .table {
+    background-color: #ffffff; /* Base background for table in light mode */
+}
+
 /* Dark Mode */
+html[data-theme="dark"] {
+    /* Override Bootstrap CSS variables for dark mode */
+    --bs-body-bg: #2c3e50; /* Base background for body and inherited elements */
+    --bs-table-bg: #2c3e50; /* Base background for tables */
+    --bs-table-striped-bg: #3d4b66; /* Background for striped rows */
+    --bs-table-hover-bg: #4a90e2; /* Hover background for tables */
+    --bs-body-color: #e0e0e0; /* Text color for body and inherited elements */
+}
+
 html[data-theme="dark"] body {
     background: linear-gradient(135deg, #1f2a44 0%, #2c3e50 100%);
     color: #e0e0e0;
@@ -54,11 +67,23 @@ html[data-theme="dark"] .form-control:focus {
 }
 
 html[data-theme="dark"] .table {
-    color: #e0e0e0;
+    background-color: var(--bs-table-bg); /* Use overridden variable for table background */
+    color: var(--bs-body-color); /* Use overridden variable for text color */
 }
 
 html[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #3d4b66;
+    background-color: var(--bs-table-striped-bg); /* Striped background for odd rows */
+}
+
+html[data-theme="dark"] .table thead th {
+    background-color: #1a2b56; /* Darker background for table headers */
+    color: #e0e0e0; /* White text for contrast */
+    border-color: #5a6b8c; /* Border color for separation */
+}
+
+html[data-theme="dark"] .table.table-hover tbody tr:hover {
+    background-color: var(--bs-table-hover-bg); /* Hover effect using overridden variable */
+    color: #ffffff; /* White text on hover */
 }
 
 html[data-theme="dark"] .alert-success {
@@ -116,7 +141,7 @@ main {
 
 /* Buttons */
 .btn {
-    min-width: 120px;  /* Фиксированная минимальная ширина для всех кнопок */
+    min-width: 120px;  /* Fixed minimum width for all buttons */
     padding: 8px 16px;
     border-radius: 8px;
     font-weight: 500;
@@ -124,7 +149,7 @@ main {
 }
 
 .btn-sm {
-    min-width: 100px;  /* Минимальная ширина для маленьких кнопок */
+    min-width: 100px;  /* Minimum width for small buttons */
     padding: 6px 12px;
 }
 
