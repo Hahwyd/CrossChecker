@@ -25,9 +25,10 @@
                     <!-- Question Input -->
                     <div class="mb-3">
                         <label for="question" class="form-label">Your Question</label>
-                        <textarea class="form-control" id="question" name="question" rows="3" 
-                                  placeholder="Is this information accurate? (Press Enter to submit, Ctrl+Enter for new line)" 
-                                  required></textarea>
+                        <textarea class="form-control" id="question" name="question" rows="3" required placeholder="Is this true?"></textarea>
+                        <small class="form-text text-muted">
+                            Press Enter to submit, Ctrl+Enter for new line
+                        </small>
                     </div>
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary w-100">Verify Now</button>
@@ -47,16 +48,26 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Submit form on Enter key press -->
 <script>
-document.getElementById('question').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.ctrlKey) {
-        e.preventDefault();
-        document.getElementById('wikiForm').submit();
-    } else if (e.key === 'Enter' && e.ctrlKey) {
-        // Allow default behavior for Ctrl+Enter (new line)
-        return true;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    const questionArea = document.getElementById('question');
+    const form = document.getElementById('wikiForm');
+    
+    questionArea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            // Если нажат Ctrl+Enter
+            if (e.ctrlKey) {
+                // Позволяем создать новую строку (стандартное поведение)
+                return true;
+            } else {
+                // Если просто Enter - отправляем форму
+                e.preventDefault(); // Предотвращаем создание новой строки
+                if (form.checkValidity()) { // Проверяем валидность формы
+                    form.submit();
+                }
+            }
+        }
+    });
 });
 </script>
 {% endblock %}

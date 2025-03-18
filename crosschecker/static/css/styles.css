@@ -1,8 +1,27 @@
-/* General body styling */
+/* Body and HTML setup */
+html {
+    height: 100%;
+}
+
 body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-family: 'Roboto', sans-serif;
     color: #2c3e50;
+}
+
+/* Page wrapper */
+.page-wrapper {
+    flex: 1 0 auto;
+}
+
+/* Main content */
+main {
+    padding: 20px;
 }
 
 /* Navbar customization */
@@ -54,10 +73,13 @@ body {
     background-color: #0056b3;
 }
 
-/* Footer */
+/* Footer styling */
 footer {
-    position: relative;
-    bottom: 0;
+    flex-shrink: 0;
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
     width: 100%;
 }
 
