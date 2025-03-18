@@ -14,9 +14,9 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
-    <link rel="apple-touch-icon" sizes="180x180" hhref="{% static 'favicon/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
     <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
 </head>
 <body>
@@ -52,25 +52,28 @@
         </div>
     </nav>
 
-    <!-- Main content area -->
-    <main class="container mt-5 pt-4">
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- Page wrapper to ensure footer stays at bottom -->
+    <div class="page-wrapper">
+        <!-- Main content area -->
+        <main class="container mt-5 pt-4">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% block content %}
-        {% endblock %}
-    </main>
+            {% endif %}
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-        <p>&copy; 2025 Wiki Verifier. All rights reserved.</p>
+    <footer class="bg-dark text-white text-center py-3">
+        <p>© 2025 Wiki Verifier. All rights reserved.</p>
     </footer>
 
     <!-- Bootstrap JS and Popper.js via CDN -->
