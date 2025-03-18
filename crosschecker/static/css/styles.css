@@ -86,6 +86,10 @@ html[data-theme="dark"] .table.table-hover tbody tr:hover {
     color: #ffffff; /* White text on hover */
 }
 
+html[data-theme="dark"] .text-muted {
+    color: #b0b0b0 !important; /* Lighter gray for muted text in dark mode */
+}
+
 html[data-theme="dark"] .alert-success {
     background-color: #1f4b36;
     color: #d4edda;
