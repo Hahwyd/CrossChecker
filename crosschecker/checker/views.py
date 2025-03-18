@@ -65,13 +65,13 @@ class CheckWikiView(LoginRequiredMixin, TemplateView):
         # Parse AI response
         try:
             result_summary = ai_response.get("result_summary", "No summary provided.")
-            sources = json.dumps({
+            sources = {
                 "url1": ai_response.get("url1", ""),
                 "url2": ai_response.get("url2", ""),
                 "url3": ai_response.get("url3", ""),
                 "url4": ai_response.get("url4", ""),
                 "url5": ai_response.get("url5", ""),
-            })
+            }
             confidence_score = ai_response.get("confidence_score", 0)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse AI response: {e}")

@@ -80,5 +80,8 @@ class Query(models.Model):
         validate_question(self.question)
         validate_question_length(self.question)
 
-    '''def __str__(self):
-        return f"{self.user.username}: {self.question[:50]}... On {self.created_at.strftime("%Y-%m-%d %H:%M:%S")}"'''
+    def __str__(self):
+        username = getattr(self.user, "username", "Unknown")
+        question = (self.question or "No question")[:50] + "..."
+        created = self.created_at.strftime("%Y-%m-%d") if self.created_at else "N/A"
+        return f"{username}: {question} ({created})"
