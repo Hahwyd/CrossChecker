@@ -1,8 +1,27 @@
-/* General body styling */
+/* Body and HTML setup */
+html {
+    height: 100%;
+}
+
 body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-family: 'Roboto', sans-serif;
     color: #2c3e50;
+}
+
+/* Page wrapper */
+.page-wrapper {
+    flex: 1 0 auto;
+}
+
+/* Main content */
+main {
+    padding: 20px;
 }
 
 /* Navbar customization */
@@ -54,10 +73,13 @@ body {
     background-color: #0056b3;
 }
 
-/* Footer */
+/* Footer styling */
 footer {
-    position: relative;
-    bottom: 0;
+    flex-shrink: 0;
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
     width: 100%;
 }
 
@@ -97,4 +119,23 @@ footer {
     .card {
         margin: 10px;
     }
+}
+
+.card {
+    animation: fadeInUp 0.5s ease-in-out;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Team member avatar styling */
+.team-member img {
+    border: 2px solid #007bff; /* Blue border matching btn-primary */
+    object-fit: cover; /* Ensures the image fills the circle nicely */
+    transition: transform 0.3s ease; /* Smooth hover effect */
+}
+
+.team-member img:hover {
+    transform: scale(1.1); /* Slight zoom on hover */
 }

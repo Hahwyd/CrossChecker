@@ -17,12 +17,11 @@ import json
 import logging
 
 logger = logging.getLogger("checker")
-
-debug_logger = logging.getLogger('debug')
-info_logger = logging.getLogger('info')
-warning_logger = logging.getLogger('warning')
-error_logger = logging.getLogger('error')
-critical_logger = logging.getLogger('critical')
+debug_logger = logging.getLogger("debug")
+info_logger = logging.getLogger("info")
+warning_logger = logging.getLogger("warning")
+error_logger = logging.getLogger("error")
+critical_logger = logging.getLogger("critical")
 
 def my_view(request):
     debug_logger.debug('This is a debug message')
@@ -165,3 +164,30 @@ class QueryResultsView(LoginRequiredMixin, View):
         # Receiving the request, checking that it belongs to the current user
         query = get_object_or_404(Query, id=query_id, user=request.user)
         return render(request, "checker/results.html", {"query": query})
+
+
+class DeleteQueryView(LoginRequiredMixin, View):
+    def post(self, request, query_id):
+        try:
+            query = Query.objects.get(id=query_id, user=request.user)
+        except Query.DoesNotExist:
+            messages.error(request, "Query does not exist.")
+            return redirect("profile")
+
+        query.delete()
+        logger.info(f"User {request.user.username} deleted query {query_id}")
+        messages.success(request, "Query has been successfully deleted.")
+        return redirect("profile")
+
+
+class DeleteAllQueriesView(LoginRequiredMixin, View):
+    def post(self, request):
+        queries = Query.objects.filter(user=request.user)
+        queries.delete()
+        logger.info(f"User {request.user.username} deleted all their queries ({queries.count()} items)")
+        return redirect("profile")
+
+class AboutUsView(View):
+
+    def get(self, request):
+        return render(request, "checker/about_us.html")

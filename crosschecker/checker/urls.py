@@ -1,6 +1,6 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from .views import HomePageView, CheckWikiView, UserProfileView, ErrorPage, QueryResultsView, UserRegisterView, UserLoginView, UserLogoutView
+from .views import *
 
 urlpatterns = [
     path("", HomePageView.as_view(), name="home"),
@@ -12,4 +12,7 @@ urlpatterns = [
     path("register/", UserRegisterView.as_view(), name="register"),
     path("error_page/", ErrorPage.as_view(),name="error_page"),
     path("results/<int:query_id>/", QueryResultsView.as_view(), name="query_results"),
+    path("delete_query/<int:query_id>/", DeleteQueryView.as_view(), name="delete_query"),
+    path('delete_all_queiries/', DeleteAllQueriesView.as_view(), name='delete_all_queries'),
+    path('about-us/', AboutUsView.as_view(), name='about_us'),
 ]

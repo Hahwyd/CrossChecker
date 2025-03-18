@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile - Wiki Verifier{% endblock %}
+{% block title %}Profile - CrossChecker{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-5">
@@ -32,11 +32,24 @@
                                     <td>{{ query.created_at|date:"m/d/Y H:i" }}</td>
                                     <td>{{ query.question|truncatechars:50 }}</td>
                                     <td><a href="{{ query.wiki_url }}" target="_blank">{{ query.wiki_url|truncatechars:30 }}</a></td>
-                                    <td><a href="{% url 'query_results' query.id %}" class="btn btn-sm btn-primary">View Results</a></td>
+                                    <td>
+                                        <a href="{% url 'query_results' query.id %}" class="btn btn-sm btn-primary">View Results</a>
+                                        <form method="post" action="{% url 'delete_query' query.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this query?');">Delete</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+                <!-- Delete All Requests Button -->
+                <div class="text-end mt-3">
+                    <form method="post" action="{% url 'delete_all_queries' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete all your requests? This action cannot be undone.');">Delete All Requests</button>
+                    </form>
                 </div>
             </div>
         {% else %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Results - Wiki Verifier{% endblock %}
+{% block title %}Results - CrossChecker{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-5">
@@ -28,15 +28,15 @@
                         N/A
                     {% endif %}
                 </p>
-                <h6>Sources:</h6>
+                <h6>Alternative sources:</h6>
                 {% if query.sources %}
-                    <ul class="list-unstyled">
+                    <ol class="list">
                         {% for key, value in query.sources.items %}
                             {% if value %}
                                 <li><a href="{{ value }}" target="_blank" class="text-primary">{{ value }}</a></li>
                             {% endif %}
                         {% endfor %}
-                    </ul>
+                    </ol>
                 {% else %}
                     <p>No sources found.</p>
                 {% endif %}
