@@ -19,6 +19,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+log_dir = os.path.join(BASE_DIR, 'info_log')
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -53,6 +56,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #Custom middlewares
+    "checker.middlewares.LogRequestResponseMiddlewares.ErrorHandlingMiddleWare",
+    "checker.middlewares.LogRequestResponseMiddlewares.DebugLoggingMiddleware",
+    "checker.middlewares.LogRequestResponseMiddlewares.InfoLoggingMiddleware",
+    "checker.middlewares.LogRequestResponseMiddlewares.WarningLoggingMiddleware",
+    "checker.middlewares.LogRequestResponseMiddlewares.CriticalLoggingMiddleware",
+    "checker.middlewares.TimeMiddleWare.PerformanceMiddleware"
 ]
 
 ROOT_URLCONF = 'crosschecker.urls'
@@ -126,8 +136,116 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'checker.CustomUser'
+
+LOGGING = {
+    "version":1,
+    'disable_existing_loggers': False,
+    "formatters":{
+        "verbose":{
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        "simple":{
+            'format': '{asctime} {levelname}  {message}',
+            'style': '{',
+             
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','info.log'),
+            'formatter': 'verbose',
+        },
+        'file_app': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','info_app.log'),
+            'formatter': 'verbose',
+        },
+
+
+
+
+        'debug_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','debug.log'),
+            'formatter': 'verbose'
+        },
+        'info_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','info.log'),
+            'formatter': 'verbose'
+        },
+        'warning_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','warning.log'),
+            'formatter': 'verbose'
+        },
+        'error_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','error.log'),
+            'formatter': 'verbose'
+        },
+        'critical_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info_log','critical.log'),
+            'formatter': 'verbose'
+        },
+        
+    },
+    
+    "loggers":{
+        "django":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            "propagate":True
+        },
+        "checker":{
+            "handlers":["console","file_app"],
+            "level":"INFO",
+            "propagate":True#set it to false if you want only the info logger to be called
+        },
+
+
+
+
+        'debug': {
+            'handlers': ['debug_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'info': {
+            'handlers': ['info_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'warning': {
+            'handlers': ['warning_file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'error': {
+            'handlers': ['error_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'critical': {
+            'handlers': ['critical_file'],
+            'level': 'CRITICAL',
+            'propagate': False,
+        },
+    }
+}
+

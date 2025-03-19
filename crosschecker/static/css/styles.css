@@ -1,0 +1,241 @@
+/* Body and HTML setup */
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Roboto', sans-serif;
+    transition: background 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+}
+
+/* Light Mode (default) */
+html[data-theme="light"] body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #2c3e50;
+}
+
+html[data-theme="light"] .card {
+    background-color: #ffffff;
+}
+
+html[data-theme="light"] .navbar-dark {
+    background-color: #007bff !important;
+}
+
+html[data-theme="light"] .table {
+    background-color: #ffffff; /* Base background for table in light mode */
+}
+
+/* Dark Mode */
+html[data-theme="dark"] {
+    /* Override Bootstrap CSS variables for dark mode */
+    --bs-body-bg: #2c3e50; /* Base background for body and inherited elements */
+    --bs-table-bg: #2c3e50; /* Base background for tables */
+    --bs-table-striped-bg: #3d4b66; /* Background for striped rows */
+    --bs-table-hover-bg: #4a90e2; /* Hover background for tables */
+    --bs-body-color: #e0e0e0; /* Text color for body and inherited elements */
+}
+
+html[data-theme="dark"] body {
+    background: linear-gradient(135deg, #1f2a44 0%, #2c3e50 100%);
+    color: #e0e0e0;
+}
+
+html[data-theme="dark"] .card {
+    background-color: #2c3e50;
+    color: #e0e0e0;
+}
+
+html[data-theme="dark"] .navbar-dark {
+    background-color: #1a2b56 !important;
+}
+
+html[data-theme="dark"] .form-control {
+    background-color: #3d4b66;
+    color: #e0e0e0;
+    border-color: #5a6b8c;
+}
+
+html[data-theme="dark"] .form-control:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+html[data-theme="dark"] .table {
+    background-color: var(--bs-table-bg); /* Use overridden variable for table background */
+    color: var(--bs-body-color); /* Use overridden variable for text color */
+}
+
+html[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--bs-table-striped-bg); /* Striped background for odd rows */
+}
+
+html[data-theme="dark"] .table thead th {
+    background-color: #1a2b56; /* Darker background for table headers */
+    color: #e0e0e0; /* White text for contrast */
+    border-color: #5a6b8c; /* Border color for separation */
+}
+
+html[data-theme="dark"] .table.table-hover tbody tr:hover {
+    background-color: var(--bs-table-hover-bg); /* Hover effect using overridden variable */
+    color: #ffffff; /* White text on hover */
+}
+
+html[data-theme="dark"] .text-muted {
+    color: #b0b0b0 !important; /* Lighter gray for muted text in dark mode */
+}
+
+html[data-theme="dark"] .alert-success {
+    background-color: #1f4b36;
+    color: #d4edda;
+}
+
+html[data-theme="dark"] .alert-danger {
+    background-color: #4b2e2e;
+    color: #f8d7da;
+}
+
+/* Page wrapper */
+.page-wrapper {
+    flex: 1 0 auto;
+}
+
+/* Main content */
+main {
+    padding: 20px;
+}
+
+/* Navbar customization */
+.navbar {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Main heading */
+.display-4 {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Card styling */
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Form inputs */
+.form-control {
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Buttons */
+.btn {
+    min-width: 120px;  /* Fixed minimum width for all buttons */
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-sm {
+    min-width: 100px;  /* Minimum width for small buttons */
+    padding: 6px 12px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer styling */
+footer {
+    flex-shrink: 0;
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+}
+
+/* Messages */
+.messages {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 500px;
+}
+
+.alert {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.alert-dismissible .btn-close {
+    padding: 0.5rem 0.5rem;
+}
+
+.alert-success {
+    animation: fadeOut 0.5s ease-in-out 4.5s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    .card {
+        margin: 10px;
+    }
+}
+
+/* Card animation */
+.card {
+    animation: fadeInUp 0.5s ease-in-out;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Team member avatar styling */
+.team-member img {
+    border: 2px solid #007bff;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.team-member img:hover {
+    transform: scale(1.1);
+}

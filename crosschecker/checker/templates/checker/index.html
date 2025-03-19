@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - CrossChecker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 fw-bold">Welcome to CrossChecker</h1>
+        <p class="lead">Verify Wikipedia information with AI-powered analysis.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Check a Wikipedia Article</h5>
+                <form method="post" action="{% url 'check_wiki' %}" id="wikiForm">
+                    {% csrf_token %}
+                    <!-- Wikipedia URL Input -->
+                    <div class="mb-3">
+                        <label for="wiki_url" class="form-label">Wikipedia URL</label>
+                        <input type="url" class="form-control" id="wiki_url" name="wiki_url" placeholder="https://en.wikipedia.org/wiki/..." required>
+                    </div>
+                    <!-- Question Input -->
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Your Question</label>
+                        <textarea class="form-control" id="question" name="question" rows="3" required placeholder="Is this true?"></textarea>
+                        <small class="form-text text-muted">
+                            Press Enter to submit, Ctrl+Enter for new line
+                        </small>
+                    </div>
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100">Verify Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 text-center">
+        <a href="{% url 'profile' %}" class="btn btn-outline-secondary">View Your History</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide alert-success after 5 seconds (from base.html)
+    var successAlerts = document.querySelectorAll('.alert-success');
+    if (successAlerts.length > 0) {
+        setTimeout(function() {
+            successAlerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    }
+
+    // Dark Mode Toggle Logic (from base.html)
+    const toggle = document.getElementById('darkModeToggle');
+    const html = document.documentElement;
+
+    // Load saved theme from localStorage
+    if (localStorage.getItem('theme') === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        toggle.checked = true;
+    }
+
+    // Toggle theme on click
+    toggle.addEventListener('change', function() {
+        if (this.checked) {
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            html.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+
+    // Form submission logic (specific to index.html)
+    const questionArea = document.getElementById('question');
+    const form = document.getElementById('wikiForm');
+    
+    questionArea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            if (e.ctrlKey) {
+                // Insert new line at cursor position
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                this.value = value.substring(0, start) + '\n' + value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                e.preventDefault();
+            } else {
+                // Submit form on Enter
+                e.preventDefault();
+                if (form.checkValidity()) {
+                    form.submit();
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
