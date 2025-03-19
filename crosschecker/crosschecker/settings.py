@@ -14,11 +14,13 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Ensure log directory exists
 log_dir = os.path.join(BASE_DIR, 'info_log')
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
@@ -27,13 +29,13 @@ if not os.path.exists(log_dir):
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-qgxpcf$&mo797_pz)c67%%d269bqcr)*4yd6k+yg*_r3mo3+3w'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-qgxpcf$&mo797_pz)c67%%d269bqcr)*4yd6k+yg*_r3mo3+3w')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'  # Default to False for production
 
-ALLOWED_HOSTS = []
-
+# Allowed hosts for production (update with your domain or cloud IP)
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 
@@ -50,19 +52,20 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #Custom middlewares
+    # Custom middlewares
     "checker.middlewares.LogRequestResponseMiddlewares.ErrorHandlingMiddleWare",
     "checker.middlewares.LogRequestResponseMiddlewares.DebugLoggingMiddleware",
     "checker.middlewares.LogRequestResponseMiddlewares.InfoLoggingMiddleware",
     "checker.middlewares.LogRequestResponseMiddlewares.WarningLoggingMiddleware",
     "checker.middlewares.LogRequestResponseMiddlewares.CriticalLoggingMiddleware",
-    "checker.middlewares.TimeMiddleWare.PerformanceMiddleware"
+    "checker.middlewares.TimeMiddleWare.PerformanceMiddleware",
 ]
 
 ROOT_URLCONF = 'crosschecker.urls'
@@ -70,7 +73,7 @@ ROOT_URLCONF = 'crosschecker.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -134,9 +137,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # For collectstatic
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # For production
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -145,82 +149,88 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'checker.CustomUser'
 
+# Security settings for production
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'  # Redirect HTTP to HTTPS
+# SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+CSRF_COOKIE_SECURE = False  # Use secure cookies for CSRF
+SESSION_COOKIE_SECURE = False  # Use secure cookies for sessions
+
+# Logging configuration
 LOGGING = {
-    "version":1,
+    "version": 1,
     'disable_existing_loggers': False,
-    "formatters":{
-        "verbose":{
+    "formatters": {
+        "verbose": {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
-        "simple":{
-            'format': '{asctime} {levelname}  {message}',
+        "simple": {
+            'format': '{asctime} {levelname} {message}',
             'style': '{',
-             
         }
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
+            'level': 'INFO',  # Only INFO and above in production
         },
         'file': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'info_log','info.log'),
+            'filename': os.path.join(BASE_DIR, 'info_log', 'info.log'),
             'formatter': 'verbose',
+            'level': 'INFO',
         },
         'file_app': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'info_log','info_app.log'),
+            'filename': os.path.join(BASE_DIR, 'info_log', 'info_app.log'),
             'formatter': 'verbose',
+            'level': 'INFO',
         },
-
-
-
-
         'debug_file': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'info_log','debug.log'),
-            'formatter': 'verbose'
+            'filename': os.path.join(BASE_DIR, 'info_log', 'debug.log'),
+            'formatter': 'verbose',
+            'level': 'DEBUG',
         },
         'info_file': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'info_log','info.log'),
-            'formatter': 'verbose'
+            'filename': os.path.join(BASE_DIR, 'info_log', 'info.log'),
+            'formatter': 'verbose',
+            'level': 'INFO',
         },
         'warning_file': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'info_log','warning.log'),
-            'formatter': 'verbose'
+            'filename': os.path.join(BASE_DIR, 'info_log', 'warning.log'),
+            'formatter': 'verbose',
+            'level': 'WARNING',
         },
         'error_file': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'info_log','error.log'),
-            'formatter': 'verbose'
+            'filename': os.path.join(BASE_DIR, 'info_log', 'error.log'),
+            'formatter': 'verbose',
+            'level': 'ERROR',
         },
         'critical_file': {
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'info_log','critical.log'),
-            'formatter': 'verbose'
+            'filename': os.path.join(BASE_DIR, 'info_log', 'critical.log'),
+            'formatter': 'verbose',
+            'level': 'CRITICAL',
         },
-        
     },
-    
-    "loggers":{
-        "django":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            "propagate":True
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": True,
         },
-        "checker":{
-            "handlers":["console","file_app"],
-            "level":"INFO",
-            "propagate":True#set it to false if you want only the info logger to be called
+        "checker": {
+            "handlers": ["console", "file_app"],
+            "level": "INFO",
+            "propagate": True,
         },
-
-
-
-
         'debug': {
             'handlers': ['debug_file'],
             'level': 'DEBUG',
@@ -248,4 +258,3 @@ LOGGING = {
         },
     }
 }
-
