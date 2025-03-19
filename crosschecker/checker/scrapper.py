@@ -14,5 +14,3 @@ def scrape_wikipedia(url: str) -> str:
     paragraphs = soup.find_all("p")
     text = " ".join([p.get_text(strip=False) for p in paragraphs])
     return text
-
-# print(scrape_wikipedia("https://en.wikipedia.org/wiki/Tomato"))
